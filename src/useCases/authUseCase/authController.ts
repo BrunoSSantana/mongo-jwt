@@ -9,7 +9,6 @@ export class AuthController {
       const { password, name, createdAt, email } = request.body as User
 
       const passwordhash = await argon2.hash(password)
-      console.log('passwordhash', passwordhash)
 
       const user = new UserModel({
         password: passwordhash,
@@ -18,9 +17,13 @@ export class AuthController {
         email
       })
 
-      await user.save()
+      const resultCreateUser = await user.save()
 
-      return response.json(user)
+      return response.json(Object.assign({}, {
+        id: resultCreateUser.id,
+        email: resultCreateUser.email,
+        createdAt: resultCreateUser.createdAt
+      }))
     } catch (error) {
       return response.status(400).send(error)
     }
